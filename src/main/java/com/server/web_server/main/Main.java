@@ -1,22 +1,30 @@
-package com.server.web_server;
+package com.server.web_server.main;
 
-import org.eclipse.jetty.server.Server;
+import com.server.web_server.dbService.DBException;
+import com.server.web_server.dbService.DBService;
+import com.server.web_server.dbService.dataSets.UsersDataSet;
 
 /**
- * Created by mr_robot on 2/19/17.
+ * @author mr_robot
+ * @since 02/23/17
  */
+
 public class Main {
-    public static void main(String[] args) throws Exception{
-        /*
-        Frontend = frontend = new Frontend();
+    public static void main(String[] args) throws Exception {
+        DBService dbService = new DBService();
+        dbService.printConnectInfo();
 
-        Server server = new Server(8080);
-        //ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-        server.setHandler(context);
-        context.addServlet(new ServletHolder(frontend), '/authform');
+        try {
+            long userId = dbService.addUser("Pavel");
+            System.out.println("Added user ID: " + userId);
 
-        server.start();
-        server.join();
-        */
+
+            UsersDataSet dataSet = dbService.getUser(userId);
+            System.out.println("User data set: " + dataSet);
+
+            dbService.cleanUp();
+        } catch (DBException e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -1,2 +1,2 @@
-# WebServer_java_backEND
-Developing web server on Java.
+# WebService_JAVA
+Developing web service on Java.

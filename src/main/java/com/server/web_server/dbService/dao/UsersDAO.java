@@ -18,26 +18,26 @@ public class UsersDAO {
         this.executor = new Executor(connection);
     }
 
-    public UsersDataSet get(long id) throws SQLException {
-        return executor.execQuery("SELECT * FROM users WHERE id=" + id, result -> {
-            result.next();
-            return new UsersDataSet(result.getLong(1), result.getString(2));
-        });
-    }
-
     public long getUserId(String name) throws SQLException {
-        return  executor.execQuery("SELECT * FROM users WHERE user_name='" + name + "'", result -> {
+        return executor.execQuery("SELECT * FROM users WHERE login=" + name, result -> {
             result.next();
             return result.getLong(1);
         });
     }
 
-    public void insertUser(String name) throws SQLException {
-        executor.execUpdate("INSERT INTO users (user_name) VALUES ('" + name + "')");
+    public UsersDataSet getUserByName(String name) throws SQLException {
+        return  executor.execQuery("SELECT * FROM users WHERE login='" + name + "'", result -> {
+            result.next();
+            return new UsersDataSet(result.getLong(1), result.getString(2), result.getString(3));
+        });
+    }
+
+    public void insertUser(String name, String password) throws SQLException {
+        executor.execUpdate("INSERT INTO users (login, password) VALUES ('" + name + "', '" + password + "')");
     }
 
     public void createTable() throws SQLException {
-        executor.execUpdate("CREATE TABLE IF NOT EXISTS users (id bigint auto_increment, user_name varchar(256), primary key (id))");
+        executor.execUpdate("create table if not exists users (id bigint auto_increment, login varchar(256), password varchar(256), primary key (id));");
     }
 
     public void dropTable() throws SQLException {

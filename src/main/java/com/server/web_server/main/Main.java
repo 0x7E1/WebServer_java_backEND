@@ -1,8 +1,14 @@
 package com.server.web_server.main;
 
-import com.server.web_server.dbService.DBException;
-import com.server.web_server.dbService.DBService;
-import com.server.web_server.dbService.dataSets.UsersDataSet;
+import com.server.web_server.accounts.AccountService;
+import com.server.web_server.servlets.SignInServlet;
+import com.server.web_server.servlets.SignUpServlet;
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.HandlerList;
+import org.eclipse.jetty.server.handler.ResourceHandler;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 
 /**
  * @author mr_robot
@@ -11,20 +17,23 @@ import com.server.web_server.dbService.dataSets.UsersDataSet;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        DBService dbService = new DBService();
-        dbService.printConnectInfo();
+        AccountService accountService = new AccountService();
 
-        try {
-            long userId = dbService.addUser("Pavel");
-            System.out.println("Added user ID: " + userId);
+        ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
+        context.addServlet(new ServletHolder(new SignUpServlet(accountService)), "/signup");
+        context.addServlet(new ServletHolder(new SignInServlet(accountService)), "/signin");
 
+        ResourceHandler resource_handler = new ResourceHandler();
+        resource_handler.setResourceBase("public_html");
 
-            UsersDataSet dataSet = dbService.getUser(userId);
-            System.out.println("User data set: " + dataSet);
+        HandlerList handlers = new HandlerList();
+        handlers.setHandlers(new Handler[]{resource_handler, context});
 
-            dbService.cleanUp();
-        } catch (DBException e) {
-            e.printStackTrace();
-        }
+        Server server = new Server(8080);
+        server.setHandler(handlers);
+
+        server.start();
+        System.out.println("Server started");
+        server.join();
     }
 }
